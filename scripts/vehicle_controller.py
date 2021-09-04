@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import rospy
 import math
@@ -86,7 +86,7 @@ MSG_GOAL            = "recieved new goal: ({}, {})"
 
 # command publisher
 
-command_pub = rospy.Publisher('/{}/command'.format(car_name), AckermannDrive, queue_size = 1)
+command_pub = rospy.Publisher('/{}/multiplexer/command'.format(car_name), AckermannDrive, queue_size = 1)
 
 # deviation publisher
 

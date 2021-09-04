@@ -1,6 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import rospy
+import rospkg
 import sys
 import os
 import math
@@ -33,10 +34,11 @@ seq          = 0
 ang_goal_pub = rospy.Publisher('/{}/purepursuit_control/ang_goal'.format(car_name), PoseStamped, queue_size = 1)
 vel_goal_pub = rospy.Publisher('/{}/purepursuit_control/vel_goal'.format(car_name), PoseStamped, queue_size = 1)
 plan_size    = 0
+rpkg_ = rospkg.RosPack()
 
 def construct_path():
     global plan_size
-    file_path = os.path.expanduser('~/catkin_ws/src/f1tenth_purepursuit/path/{}.csv'.format(trajectory_name))
+    file_path = os.path.join(rpkg_.get_path('f1tenth-pure_pursuit'), 'path/{}.csv'.format(trajectory_name))
 
     with open(file_path) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter = ',')
@@ -55,26 +57,26 @@ brake_lookahead        = 2.00
 caution_lookahead      = 2.50
 unrestricted_lookahead = 3.00
 
-global ang_lookahead_dist
+# global ang_lookahead_dist
 global vel_lookahead_dist
 
 if adaptive_lookahead != 'true':
-    ang_lookahead_dist = int(float(sys.argv[4]) * 100)
+    ang_lookahead_dist = int(float(sys.argv[4]) * 10)
     vel_lookahead_dist = ang_lookahead_dist * 2
 else:
-    ang_lookahead_dist = 100
-    vel_lookahead_dist = 200
+    ang_lookahead_dist = 10
+    vel_lookahead_dist = 20
 
 def dist_callback(data):
     global ang_lookahead_dist
     global vel_lookahead_dist
 
     if data.data == 'brake':
-        ang_lookahead_dist = int(brake_lookahead * 100)
+        ang_lookahead_dist = int(brake_lookahead * 10)
     elif data.data == 'caution':
-        ang_lookahead_dist = int(caution_lookahead * 100)
+        ang_lookahead_dist = int(caution_lookahead * 10)
     else:
-        ang_lookahead_dist = int(unrestricted_lookahead * 100)
+        ang_lookahead_dist = int(unrestricted_lookahead * 10)
 
     vel_lookahead_dist = ang_lookahead_dist * 2
 

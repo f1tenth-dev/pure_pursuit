@@ -1,6 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import rospy
+import rospkg
 import sys
 import os
 import math
@@ -15,9 +16,10 @@ sector_list_name = str(sys.argv[2])
 sectors = []
 
 decision_pub  = rospy.Publisher('/{}/purepursuit_control/adaptive_lookahead'.format(car_name), String, queue_size = 1)
+rpkg_ = rospkg.RosPack()
 
 def construct_path():
-    file_path = os.path.expanduser('~/catkin_ws/src/f1tenth_purepursuit/sectors/{}.csv'.format(sector_list_name))
+    file_path = os.path.join(rpkg_.get_path('f1tenth-pure_pursuit'), 'sectors/{}.csv'.format(sector_list_name))
 
     with open(file_path) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter = ',')
