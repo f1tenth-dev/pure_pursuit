@@ -2,6 +2,7 @@
 
 import rospy
 import sys
+import ast
 
 from geometry_msgs.msg import PolygonStamped
 from geometry_msgs.msg import PoseStamped
@@ -18,6 +19,11 @@ curr_polygon = PolygonStamped()
 frame_id     = 'map'
 polygon_pub  = rospy.Publisher('/{}/purepursuit_control/visualize'.format(car_name), PolygonStamped, queue_size = 1)
 
+# Get car init pose as offset
+init_pose = Point32()
+init_pose_param = ast.literal_eval(rospy.get_param('/{}/init_pose'.format(car_name)))
+init_pose.x, init_pose.y, init_pose.z = init_pose_param
+
 global base_link
 global nearest_pose
 global nearest_goal
@@ -28,18 +34,18 @@ nearest_goal = Point32()
 
 def pose_callback(data):
     global nearest_pose
-    nearest_pose.x = data.pose.position.x
-    nearest_pose.y = data.pose.position.y
+    nearest_pose.x = data.pose.position.x + init_pose.x
+    nearest_pose.y = data.pose.position.y + init_pose.y
 
 def goal_callback(data):
     global nearest_goal
-    nearest_goal.x = data.pose.position.x
-    nearest_goal.y = data.pose.position.y
+    nearest_goal.x = data.pose.position.x + init_pose.x
+    nearest_goal.y = data.pose.position.y + init_pose.y
 
 def odom_callback(data):
     global base_link
-    base_link.x = data.pose.pose.position.x
-    base_link.y = data.pose.pose.position.y
+    base_link.x = data.pose.pose.position.x + init_pose.x
+    base_link.y = data.pose.pose.position.y + init_pose.y
     publish_current_polygon()
 
 def publish_current_polygon():

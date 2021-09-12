@@ -3,20 +3,28 @@
 import rospy
 import rospkg
 import sys
+import ast
 import csv
 import os
 
 from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import Point
 from nav_msgs.msg import Path
 from nav_msgs.msg import Odometry
 
-trajectory_name = str(sys.argv[1])
-sector_list     = str(sys.argv[2])
+car_name        = str(sys.argv[1])
+trajectory_name = str(sys.argv[2])
+sector_list     = str(sys.argv[3])
 
 plan     = []
 sectors  = []
 frame_id = 'map'
 rpkg_ = rospkg.RosPack()
+
+# Get car init pose as offset
+init_pose = Point()
+init_pose_param = ast.literal_eval(rospy.get_param('/{}/init_pose'.format(car_name)))
+init_pose.x, init_pose.y, init_pose.z = init_pose_param
 
 def get_plan():
     file_path = os.path.join(rpkg_.get_path('f1tenth-pure_pursuit'), 'path/{}.csv'.format(trajectory_name))
@@ -56,8 +64,8 @@ class visualize_sector(object):
             for index in range(self.begin_index, self.end_index):
                 waypoint = PoseStamped()
                 waypoint.header.frame_id = frame_id
-                waypoint.pose.position.x = plan[index][0]
-                waypoint.pose.position.y = plan[index][1]
+                waypoint.pose.position.x = plan[index][0] + init_pose.x
+                waypoint.pose.position.y = plan[index][1] + init_pose.y
                 waypoint.pose.orientation.z = plan[index][2]
                 waypoint.pose.orientation.w = plan[index][3]
                 self.path.poses.append(waypoint)
@@ -65,16 +73,16 @@ class visualize_sector(object):
             for index in range(self.begin_index, len(plan)):
                 waypoint = PoseStamped()
                 waypoint.header.frame_id = frame_id
-                waypoint.pose.position.x = plan[index][0]
-                waypoint.pose.position.y = plan[index][1]
+                waypoint.pose.position.x = plan[index][0] + init_pose.x
+                waypoint.pose.position.y = plan[index][1] + init_pose.x
                 waypoint.pose.orientation.z = plan[index][2]
                 waypoint.pose.orientation.w = plan[index][3]
                 self.path.poses.append(waypoint)
             for index in range(0, self.end_index):
                 waypoint = PoseStamped()
                 waypoint.header.frame_id = frame_id
-                waypoint.pose.position.x = plan[index][0]
-                waypoint.pose.position.y = plan[index][1]
+                waypoint.pose.position.x = plan[index][0] + init_pose.x
+                waypoint.pose.position.y = plan[index][1] + init_pose.y
                 waypoint.pose.orientation.z = plan[index][2]
                 waypoint.pose.orientation.w = plan[index][3]
                 self.path.poses.append(waypoint)
