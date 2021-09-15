@@ -12,19 +12,11 @@
   <arg         name           = 'adaptive_lookahead_dist'
                default        = '2.0'/>
   <arg         name           = 'velocity_scaler'
-               default        = '0.65'/>
+               default        = '1.25'/>
   <arg         name           = 'number_laps'
                default        = '100'/>
   <arg         name           = 'car_name'
                default        = 'car_1'/>
-  <arg         name           = 'car_paint'
-               default        = 'Yellow'/>
-  <arg         name           = 'run_gazebo'
-               default        = 'true'/>
-  <arg         name           = 'x_pos'
-               default        = '2.5'/>
-  <arg         name           = 'y_pos'
-               default        = '-7.0'/>
   <arg         name           = 'run_rviz'
                default        = 'true'/>
 
@@ -39,22 +31,12 @@
 
   <!-- raceline visualizer -->
   <node        name           = 'trajectory_visualizer'
-               pkg            = 'f1tenth-sim'
+               pkg            = 'f1tenth-pure_pursuit'
                type           = 'trajectory_visualizer.py'
-               args           = 'raceline raceline_sectors_original'/>
+               args           = '$(arg car_name) raceline raceline_sectors_original'/>
 
   <!-- spawn car using the set global parameters -->
-  <include     file           = '$(find f1tenth-sim)/launch/simulator.launch'>
-  <arg         name           = 'car_name'
-               value          = '$(arg car_name)'/>
-  <arg         name           = 'paint'
-               value          = '$(arg car_paint)'/>
-  <arg         name           = 'run_gazebo'
-               value          = '$(arg run_gazebo)'/>
-  <arg         name           = 'x_pos'
-               value          = '$(arg x_pos)'/>
-  <arg         name           = 'y_pos'
-               value          = '$(arg y_pos)'/> </include>
+  <include     file           = '$(find f1tenth-sim)/launch/simulator.launch'/>
 
   <group       ns             = '$(arg car_name)'>
 
@@ -62,37 +44,37 @@
 
   <!-- find nearest pose -->
   <node        name           = 'nearest_pose_isolator'
-               pkg            = 'f1tenth-sim'
+               pkg            = 'f1tenth-pure_pursuit'
                type           = 'find_nearest_pose.py'
                args           = '$(arg car_name) raceline'/>
 
   <!-- calculate lookahead distance range -->
   <node        name           = 'adaptive_lookahead_node'
-               pkg            = 'f1tenth-sim'
+               pkg            = 'f1tenth-pure_pursuit'
                type           = 'adaptive_lookahead.py'
                args           = '$(arg car_name) raceline_sectors_original'/>
 
   <!-- find goal using lookahead distance -->
   <node        name           = 'nearest_goal_isolator'
-               pkg            = 'f1tenth-sim'
+               pkg            = 'f1tenth-pure_pursuit'
                type           = 'find_nearest_goal.py'
                args           = '$(arg car_name) raceline $(arg use_adaptive_lookahead) $(arg adaptive_lookahead_dist)'/>
 
   <!-- vehicle controller -->
   <node        name           = 'purepursuit_controller'
-               pkg            = 'f1tenth-sim'
+               pkg            = 'f1tenth-pure_pursuit'
                type           = 'vehicle_controller.py'
                args           = '$(arg car_name) $(arg use_ackermann_model) $(arg use_adaptive_lookahead) $(arg velocity_scaler)'/>
 
   <!-- purepursuit visualizer -->
   <node        name           = 'purepursuit_visualizer'
-               pkg            = 'f1tenth-sim'
+               pkg            = 'f1tenth-pure_pursuit'
                type           = 'purepursuit_visualizer.py'
                args           = '$(arg car_name)'/>
 
   <!-- lap statistics visualizer -->
   <node        name           = 'statistics_logger'
-               pkg            = 'f1tenth-sim'
+               pkg            = 'f1tenth-pure_pursuit'
                type           = 'lap_statistics.py'
                args           = '$(arg car_name) $(arg number_laps)'
                output         = 'screen'
@@ -103,6 +85,6 @@
   <node        pkg            = 'rviz'
                type           = 'rviz'
                name           = 'rviz'
-               args           = '-d $(find f1tenth-sim)/rviz/purepursuit_control.rviz'/> </group>
+               args           = '-d $(find f1tenth-pure_pursuit)/rviz/purepursuit_control.rviz'/> </group>
 
 </launch>

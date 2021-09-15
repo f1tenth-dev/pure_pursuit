@@ -1,6 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import rospy
+import rospkg
 import sys
 import os
 import math
@@ -17,9 +18,10 @@ plan = []
 
 min_index_pub = rospy.Publisher('/{}/purepursuit_control/index_nearest_point'.format(car_name), Int64, queue_size = 1)
 min_pose_pub  = rospy.Publisher('/{}/purepursuit_control/visualize_nearest_point'.format(car_name), PoseStamped, queue_size = 1)
+rpkg_ = rospkg.RosPack()
 
 def construct_path():
-    file_path = os.path.expanduser('~/catkin_ws/src/f1tenth_purepursuit/path/{}.csv'.format(trajectory_name))
+    file_path = os.path.join(rpkg_.get_path('f1tenth-pure_pursuit'), 'path/{}.csv'.format(trajectory_name))
 
     with open(file_path) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter = ',')
